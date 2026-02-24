@@ -41,6 +41,10 @@
 - App\Model\Catalog\Service\GenreResolverInterface
 - App\Model\Core\Entity\Log
 - App\Model\Core\Repository\LogRepository
+- App\Model\Enum\ProductCategory
+- App\Model\Enum\ProductCondition
+- App\Model\Enum\ProductMediaType
+- App\Model\Enum\ScrapeJobType
 - App\Model\Factory\Anonymous
 - App\Model\Factory\DatagridFactory
 - App\Model\Factory\FormFactory
@@ -59,6 +63,7 @@
 - App\Model\Inventory\Entity\ReceivingBatch
 - App\Model\Inventory\Entity\ReceivingBatchItem
 - App\Model\Inventory\Entity\StockItem
+- App\Model\Inventory\Enum\StockItemStatus
 - App\Model\Inventory\Facade\ReceivingBatchFacade
 - App\Model\Inventory\Facade\StockReceivingFacade
 - App\Model\Inventory\Repository\ReceivingBatchRepository
@@ -72,6 +77,8 @@
 - App\Model\Order\Entity\OrderAdjustment
 - App\Model\Order\Entity\OrderItem
 - App\Model\Order\Entity\OrderItemSnapshot
+- App\Model\Order\Enum\OrderSplitAction
+- App\Model\Order\Enum\OrderStatus
 - App\Model\Order\Facade\CreateOrderFacade
 - App\Model\Order\Facade\OrderSplitFacade
 - App\Model\Order\Repository\OrderRepository
@@ -84,6 +91,7 @@
 - App\Model\Scraping\Entity\ScrapeProduct
 - App\Model\Scraping\Entity\ScrapeResult
 - App\Model\Scraping\Entity\ScrapeSource
+- App\Model\Scraping\Enum\ScrapeJobStatus
 - App\Model\Scraping\Exception\BlockedException
 - App\Model\Scraping\Generator\JobGenerator
 - App\Model\Scraping\Storage\HtmlStorage
@@ -96,6 +104,9 @@
 - App\Model\User\Entity\User
 - App\Model\User\Entity\UserGroup
 - App\Model\User\Entity\UserProfile
+- App\Model\User\Enum\AddressType
+- App\Model\User\Enum\UserRole
+- App\Model\User\Enum\UserStatus
 - App\Model\User\Exception\DuplicateEmailException
 - App\Model\User\Exception\UserBannedException
 - App\Model\User\Facade\RegistrationData
@@ -732,6 +743,38 @@
 
 ## Namespace: `App\Model\Enum`
 
+### Trait: `ProductCategory`
+
+**Public Methods:**
+
+- *None*
+
+---
+
+### Trait: `ProductCondition`
+
+**Public Methods:**
+
+- *None*
+
+---
+
+### Trait: `ProductMediaType`
+
+**Public Methods:**
+
+- *None*
+
+---
+
+### Trait: `ScrapeJobType`
+
+**Public Methods:**
+
+- *None*
+
+---
+
 ## Namespace: `App\Model\Factory`
 
 ### Class: `Anonymous`
@@ -994,6 +1037,15 @@
 
 ## Namespace: `App\Model\Inventory\Enum`
 
+### Trait: `StockItemStatus`
+
+**Public Methods:**
+
+- `label(): string`
+- `badgeClass(): string`
+
+---
+
 ## Namespace: `App\Model\Inventory\Facade`
 
 ### Class: `ReceivingBatchFacade`
@@ -1224,6 +1276,23 @@
 ---
 
 ## Namespace: `App\Model\Order\Enum`
+
+### Trait: `OrderSplitAction`
+
+**Public Methods:**
+
+- `label(): string`
+
+---
+
+### Trait: `OrderStatus`
+
+**Public Methods:**
+
+- `label(): string`
+- `badgeClass(): string`
+
+---
 
 ## Namespace: `App\Model\Order\Facade`
 
@@ -1547,6 +1616,14 @@
 
 ## Namespace: `App\Model\Scraping\Enum`
 
+### Trait: `ScrapeJobStatus`
+
+**Public Methods:**
+
+- *None*
+
+---
+
 ## Namespace: `App\Model\Scraping\Exception`
 
 ### Class: `BlockedException`
@@ -1713,6 +1790,30 @@
 ---
 
 ## Namespace: `App\Model\User\Enum`
+
+### Trait: `AddressType`
+
+**Public Methods:**
+
+- *None*
+
+---
+
+### Trait: `UserRole`
+
+**Public Methods:**
+
+- *None*
+
+---
+
+### Trait: `UserStatus`
+
+**Public Methods:**
+
+- *None*
+
+---
 
 ## Namespace: `App\Model\User\Exception`
 

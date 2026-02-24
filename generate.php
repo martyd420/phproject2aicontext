@@ -8,6 +8,7 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Trait_;
 use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\Node\Stmt\Enum_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\ParserFactory;
@@ -36,11 +37,12 @@ class ArchitectureCollector extends NodeVisitorAbstract
                     'classes' => [],
                     'interfaces' => [],
                     'traits' => [],
+                    'enums' => [],
                 ];
             }
         }
 
-        if ($node instanceof Class_ || $node instanceof Interface_ || $node instanceof Trait_) {
+        if ($node instanceof Class_ || $node instanceof Interface_ || $node instanceof Trait_ || $node instanceof Enum_) {
             $ns = $this->currentNamespace ?? 'Global';
             if (!isset($this->namespaces[$ns])) {
                 $this->namespaces[$ns] = ['classes' => [], 'interfaces' => [], 'traits' => []];
@@ -185,7 +187,7 @@ $md = "# Codebase Architecture Map\n\n";
 // Class List
 $md .= "## Class List\n\n";
 foreach ($collector->namespaces as $nsName => $content) {
-    foreach (['classes', 'interfaces', 'traits'] as $type) {
+    foreach (['classes', 'interfaces', 'traits', 'enums'] as $type) {
         foreach ($content[$type] as $name => $data) {
             $md .= "- " . ($nsName !== 'Global' ? "$nsName\\" : "") . "$name\n";
         }
@@ -195,7 +197,7 @@ foreach ($collector->namespaces as $nsName => $content) {
 // Architecture
 foreach ($collector->namespaces as $nsName => $content) {
     $md .= "## Namespace: `$nsName`\n\n";
-    foreach (['classes' => 'Class', 'interfaces' => 'Interface', 'traits' => 'Trait'] as $key => $label) {
+    foreach (['classes' => 'Class', 'interfaces' => 'Interface', 'traits' => 'Trait', 'enums' => 'Enum'] as $key => $label) {
         foreach ($content[$key] as $name => $data) {
             $md .= "### $label: `$name`\n\n";
             

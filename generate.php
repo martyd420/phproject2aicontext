@@ -223,7 +223,9 @@ $allDeps = [];
 foreach ($collector->namespaces as $nsName => $content) {
     foreach ($content['classes'] as $name => $data) {
         foreach ($data['dependencies'] as $dep) {
-            $allDeps[] = "    $name --> $dep";
+            $safeName = str_replace(['\\', '-'], '_', $name);
+            $safeDep = str_replace(['\\', '-'], '_', $dep);
+            $allDeps[] = '    ' . $safeName . '["' . $name . '"] --> ' . $safeDep . '["' . $dep . '"]';
         }
     }
 }

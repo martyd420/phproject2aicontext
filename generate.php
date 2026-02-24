@@ -182,7 +182,17 @@ foreach ($collector->namespaces as &$ns) {
 // Generate Full Markdown Output
 $md = "# Codebase Architecture Map\n\n";
 
-// 1. Architecture
+// Class List
+$md .= "## Class List\n\n";
+foreach ($collector->namespaces as $nsName => $content) {
+    foreach (['classes', 'interfaces', 'traits'] as $type) {
+        foreach ($content[$type] as $name => $data) {
+            $md .= "- " . ($nsName !== 'Global' ? "$nsName\\" : "") . "$name\n";
+        }
+    }
+}
+
+// Architecture
 foreach ($collector->namespaces as $nsName => $content) {
     $md .= "## Namespace: `$nsName`\n\n";
     foreach (['classes' => 'Class', 'interfaces' => 'Interface', 'traits' => 'Trait'] as $key => $label) {
@@ -216,7 +226,7 @@ foreach ($collector->namespaces as $nsName => $content) {
     }
 }
 
-// 2. Dependency Graph
+// Dependency Graph
 $md .= "## Dependency Graph\n\n";
 $md .= "```mermaid\ngraph TD\n";
 $allDeps = [];
@@ -231,16 +241,6 @@ foreach ($collector->namespaces as $nsName => $content) {
 }
 sort($allDeps);
 $md .= implode("\n", array_unique($allDeps)) . "\n```\n\n";
-
-// 3. Class List
-$md .= "## Class List\n\n";
-foreach ($collector->namespaces as $nsName => $content) {
-    foreach (['classes', 'interfaces', 'traits'] as $type) {
-        foreach ($content[$type] as $name => $data) {
-            $md .= "- " . ($nsName !== 'Global' ? "$nsName\\" : "") . "$name\n";
-        }
-    }
-}
 
 // Output Markdown
 echo $md;

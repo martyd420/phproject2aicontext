@@ -19,7 +19,7 @@ use PhpParser\NodeVisitorAbstract;
 /**
  * Configuration
  */
-$inputDir = __DIR__ . '/src';
+$inputDir = $argv[1] ?? __DIR__ . '/src';
 
 /**
  * AST Visitor to collect architecture metadata
@@ -159,7 +159,9 @@ function isEntity($className, $nsName) {
  * Execution Logic
  */
 if (!is_dir($inputDir)) {
-    fwrite(STDERR, "Error: Directory $inputDir does not exist.\n");
+    fwrite(STDERR, "Error: Directory \"$inputDir\" does not exist.\n");
+    fwrite(STDERR, "Usage: php generate.php [path_to_src]\n");
+    fwrite(STDERR, "Default: " . __DIR__ . "/src\n");
     exit(1);
 }
 

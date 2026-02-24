@@ -9,6 +9,7 @@ use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Trait_;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Enum_;
+use PhpParser\Node\Stmt\EnumCase;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\ParserFactory;
@@ -45,17 +46,29 @@ class ArchitectureCollector extends NodeVisitorAbstract
         if ($node instanceof Class_ || $node instanceof Interface_ || $node instanceof Trait_ || $node instanceof Enum_) {
             $ns = $this->currentNamespace ?? 'Global';
             if (!isset($this->namespaces[$ns])) {
-                $this->namespaces[$ns] = ['classes' => [], 'interfaces' => [], 'traits' => []];
+                $this->namespaces[$ns] = ['classes' => [], 'interfaces' => [], 'traits' => [], 'enums' => []];
             }
 
-            $name = $node->name ? $node->name->toString() : 'Anonymous';
-            $type = $node instanceof Class_ ? 'classes' : ($node instanceof Interface_ ? 'interfaces' : 'traits');
-            
+            $name = $node->name?->toString() ?? 'Anonymous';
+
+            $type = match (true) {
+                $node instanceof Class_ => 'classes',
+                $node instanceof Interface_ => 'interfaces',
+                $node instanceof Trait_ => 'traits',
+                default => 'enums',
+            };
+
             $methods = [];
             $properties = [];
             $dependencies = [];
+            $cases = [];
 
             foreach ($node->stmts as $stmt) {
+                // Collect Enum Cases
+                if ($stmt instanceof EnumCase) {
+                    $cases[] = $stmt->name->toString();
+                }
+
                 // Collect Properties
                 if ($stmt instanceof Property) {
                     $propType = $this->getTypeString($stmt->type);
@@ -72,7 +85,7 @@ class ArchitectureCollector extends NodeVisitorAbstract
                 if ($stmt instanceof ClassMethod && $stmt->isPublic()) {
                     $methodName = $stmt->name->toString();
                     $params = [];
-                    
+
                     foreach ($stmt->params as $param) {
                         $paramType = $this->getTypeString($param->type);
                         $params[] = [
@@ -101,7 +114,8 @@ class ArchitectureCollector extends NodeVisitorAbstract
             $this->namespaces[$ns][$type][$name] = [
                 'methods' => $methods,
                 'properties' => $properties,
-                'dependencies' => array_unique($dependencies)
+                'dependencies' => array_unique($dependencies),
+                'cases' => $cases
             ];
         }
 
@@ -126,7 +140,7 @@ class ArchitectureCollector extends NodeVisitorAbstract
     private function isBuiltinType(string $type): bool
     {
         $builtins = [
-            'string', 'int', 'float', 'bool', 'array', 'object', 'callable', 
+            'string', 'int', 'float', 'bool', 'array', 'object', 'callable',
             'iterable', 'mixed', 'void', 'never', 'false', 'null', 'self', 'static', 'parent'
         ];
         $type = ltrim($type, '?');
@@ -145,6 +159,7 @@ function isEntity($className, $nsName) {
  * Execution Logic
  */
 if (!is_dir($inputDir)) {
+    fwrite(STDERR, "Error: Directory $inputDir does not exist.\n");
     exit(1);
 }
 
@@ -179,6 +194,7 @@ foreach ($collector->namespaces as &$ns) {
     ksort($ns['classes']);
     ksort($ns['interfaces']);
     ksort($ns['traits']);
+    ksort($ns['enums']);
 }
 
 // Generate Full Markdown Output
@@ -197,11 +213,16 @@ foreach ($collector->namespaces as $nsName => $content) {
 // Architecture
 foreach ($collector->namespaces as $nsName => $content) {
     $md .= "## Namespace: `$nsName`\n\n";
+
+    if (empty($content['classes']) && empty($content['interfaces']) && empty($content['traits']) && empty($content['enums'])) {
+        continue;
+    }
+
     foreach (['classes' => 'Class', 'interfaces' => 'Interface', 'traits' => 'Trait', 'enums' => 'Enum'] as $key => $label) {
         foreach ($content[$key] as $name => $data) {
             $md .= "### $label: `$name`\n\n";
-            
-            if (isEntity($name, $nsName)) {
+
+            if (isEntity($name, $nsName)  && $key === 'classes') {
                 $md .= "**Properties:**\n\n";
                 if (empty($data['properties'])) {
                     $md .= "- *None*\n";
@@ -209,6 +230,14 @@ foreach ($collector->namespaces as $nsName => $content) {
                     foreach ($data['properties'] as $p) {
                         $md .= "- `{$p['visibility']} " . ($p['type'] ?? 'mixed') . " \${$p['name']}`\n";
                     }
+                }
+                $md .= "\n";
+            }
+
+            if (!empty($data['cases'])) {
+                $md .= "**Enum Cases:**\n\n";
+                foreach ($data['cases'] as $case) {
+                    $md .= "- `$case`\n";
                 }
                 $md .= "\n";
             }

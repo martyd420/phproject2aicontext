@@ -165,7 +165,15 @@ if (!is_dir($inputDir)) {
     exit(1);
 }
 
-$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($inputDir));
+$directory = new RecursiveDirectoryIterator($inputDir, RecursiveDirectoryIterator::SKIP_DOTS);
+$filter = new RecursiveCallbackFilterIterator($directory, function ($current, $key, $iterator) {
+    if ($current->isDir() && $current->getFilename() === 'vendor') {
+        return false;
+    }
+    return true;
+});
+
+$files = new RecursiveIteratorIterator($filter);
 $phpFiles = [];
 foreach ($files as $file) {
     if ($file->isFile() && $file->getExtension() === 'php') {
